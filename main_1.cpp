@@ -18,37 +18,37 @@ char Getchar() {
 		return EOF;
     }
     else if ((Whitespace.find(temp_char) != std::string::npos || temp_char == ' ')) {
-        return Getchar(); // µİ¹éÌø¹ı¿Õ°××Ö·û
+        return Getchar(); // é€’å½’è·³è¿‡ç©ºç™½å­—ç¬¦
     }
     else if (temp_char == '/') {
         int next_char = getchar();
         if (next_char == '/') {
-            // µ¥ĞĞ×¢ÊÍ£¬Ìø¹ıÖ±µ½»»ĞĞ»òEOF
+            // å•è¡Œæ³¨é‡Šï¼Œè·³è¿‡ç›´åˆ°æ¢è¡Œæˆ–EOF
             while ((temp_char = getchar()) != EOF && temp_char != '\n');
-            return Getchar(); // µİ¹é¼ÌĞø»ñÈ¡ÏÂÒ»¸öÓĞĞ§×Ö·û
+            return Getchar(); // é€’å½’ç»§ç»­è·å–ä¸‹ä¸€ä¸ªæœ‰æ•ˆå­—ç¬¦
         } else if (next_char == '*') {
-            // ¶àĞĞ×¢ÊÍ£¬Ìø¹ıÖ±µ½ÕÒµ½½áÊø·ûºÅ */
+            // å¤šè¡Œæ³¨é‡Šï¼Œè·³è¿‡ç›´åˆ°æ‰¾åˆ°ç»“æŸç¬¦å· */
             while (true) {
                 temp_char = getchar();
                 if (temp_char == EOF) {
-                    return EOF; // Óöµ½EOFÖ±½Ó·µ»Ø
+                    return EOF; // é‡åˆ°EOFç›´æ¥è¿”å›
                 }
                 if (temp_char == '*') {
                     next_char = getchar();
                     if (next_char == '/') {
-                        break; // ÕÒµ½½áÊø·ûºÅ£¬Ìø³öÑ­»·
+                        break; // æ‰¾åˆ°ç»“æŸç¬¦å·ï¼Œè·³å‡ºå¾ªç¯
                     } else {
-                        ungetc(next_char, stdin); // ·Å»ØÏÂÒ»¸ö×Ö·û
+                        ungetc(next_char, stdin); // æ”¾å›ä¸‹ä¸€ä¸ªå­—ç¬¦
                     }
                 }
             }
-            return Getchar(); // µİ¹é¼ÌĞø»ñÈ¡ÏÂÒ»¸öÓĞĞ§×Ö·û
+            return Getchar(); // é€’å½’ç»§ç»­è·å–ä¸‹ä¸€ä¸ªæœ‰æ•ˆå­—ç¬¦
         } else {
-            ungetc(next_char, stdin); // ·Å»ØÏÂÒ»¸ö×Ö·û
-            return '/'; // ·µ»Ø³ı×¢ÊÍÍâµÄ /
+            ungetc(next_char, stdin); // æ”¾å›ä¸‹ä¸€ä¸ªå­—ç¬¦
+            return '/'; // è¿”å›é™¤æ³¨é‡Šå¤–çš„ /
         }
     } else {
-		return static_cast<char>(temp_char); // ·µ»Ø·Ç¿Õ°××Ö·û
+		return static_cast<char>(temp_char); // è¿”å›éç©ºç™½å­—ç¬¦
     }
 }
 
@@ -60,7 +60,7 @@ void If_IntConst(char ch){
             current_token += ch;
         }
         else {
-            ungetc(ch, stdin); // ·Å»Ø·ÇÊı×Ö×Ö·û
+            ungetc(ch, stdin); // æ”¾å›éæ•°å­—å­—ç¬¦
             break;
         }
     }
@@ -70,7 +70,7 @@ void If_IntConst(char ch){
 }
 
 void Scan_char(char ch) {
-    if (isalpha(static_cast<unsigned char>(ch)) || ch == '_') { // ±êÊ¶·û»ò¹Ø¼ü×Ö
+    if (isalpha(static_cast<unsigned char>(ch)) || ch == '_') { // æ ‡è¯†ç¬¦æˆ–å…³é”®å­—
         current_token += ch;
         while (true) {
             ch = getchar();
@@ -78,11 +78,11 @@ void Scan_char(char ch) {
                 current_token += ch;
             }
             else {
-                ungetc(ch, stdin); // »ØÍË²Ù×÷
+                ungetc(ch, stdin); // å›é€€æ“ä½œ
                 break;
             }
         }
-        // ¼ì²éÊÇ·ñÎª¹Ø¼ü×Ö
+        // æ£€æŸ¥æ˜¯å¦ä¸ºå…³é”®å­—
         bool is_keyword = false;
         int Size_Keywords = sizeof(Keywords) / sizeof(Keywords[0]);
         for (int i = 0; i < Size_Keywords; i++) {
@@ -99,15 +99,15 @@ void Scan_char(char ch) {
         }
         current_token.clear();
     }
-    else if (isdigit(ch)) { // Êı×Ö
+    else if (isdigit(ch)) { // æ•°å­—
         If_IntConst(ch);
     }
-    else { // ²Ù×÷·û»ò·Ö¸ô·û
+    else { // æ“ä½œç¬¦æˆ–åˆ†éš”ç¬¦
         current_token += ch;
         char next_ch = getchar();
-		//²»ÓÃ´¦Àí¸ºÊı
+		//ä¸ç”¨å¤„ç†è´Ÿæ•°
         //if (current_token == "-") {
-        //    if (isdigit(next_ch)) { // ¸ºÊı
+        //    if (isdigit(next_ch)) { // è´Ÿæ•°
         //        If_IntConst(next_ch);
         //        return;
         //    } 
@@ -116,7 +116,7 @@ void Scan_char(char ch) {
             string two_char_op = current_token + next_ch;
             bool is_two_char_op = false;
             int Size_Operators = sizeof(Operators) / sizeof(Operators[0]);
-            for (int i = 0; i < Size_Operators; i++) { // ¼ì²éË«×Ö·û²Ù×÷·û
+            for (int i = 0; i < Size_Operators; i++) { // æ£€æŸ¥åŒå­—ç¬¦æ“ä½œç¬¦
                 if (two_char_op == Operators[i]) {
                     cout << token_number << ":'" << two_char_op << "':\"" << two_char_op << "\"" << endl;
                     token_number++;
@@ -125,9 +125,9 @@ void Scan_char(char ch) {
                 }
             }
             if (!is_two_char_op) {
-                ungetc(next_ch, stdin); // ·Å»ØÏÂÒ»¸ö×Ö·û
+                ungetc(next_ch, stdin); // æ”¾å›ä¸‹ä¸€ä¸ªå­—ç¬¦
                 bool is_one_char_op = false;
-                for (int i = 0; i < Size_Operators; i++) { // ¼ì²éµ¥×Ö·û²Ù×÷·û
+                for (int i = 0; i < Size_Operators; i++) { // æ£€æŸ¥å•å­—ç¬¦æ“ä½œç¬¦
                     if (current_token == Operators[i]) {
                         cout << token_number << ":'" << current_token << "':\"" << current_token << "\"" << endl;
                         token_number++;
@@ -138,7 +138,7 @@ void Scan_char(char ch) {
                 if (!is_one_char_op) {
                     bool is_delim = false;
                     int Size_Delimiters = sizeof(Delimiters) / sizeof(Delimiters[0]);
-                    for (int i = 0; i < Size_Delimiters; i++) { // ¼ì²é·Ö¸ô·û
+                    for (int i = 0; i < Size_Delimiters; i++) { // æ£€æŸ¥åˆ†éš”ç¬¦
                         if (current_token == Delimiters[i]) {
                             cout << token_number << ":'" << current_token << "':\"" << current_token << "\"" << endl;
                             token_number++;
@@ -147,7 +147,7 @@ void Scan_char(char ch) {
                         }
                     }
                     if (!is_delim) {
-                        cout << token_number << "\":Error:\"" << current_token << "\"" << endl; // Î´Öª×Ö·û
+                        cout << token_number << "\":Error:\"" << current_token << "\"" << endl; // æœªçŸ¥å­—ç¬¦
                         token_number++;
                     }
                 }
