@@ -163,6 +163,9 @@ void Scan_char(char ch) {
 
 
 
+
+
+
 // 语法分析器
 // 全局状态
 int pos = 0;
@@ -242,6 +245,9 @@ void AddExpr();
 void MulExpr();
 void UnaryExpr();
 void PrimaryExpr();
+
+// 专用：if/while 的括号条件解析（受控同步，避免级联）
+bool ParenExprForCtrl();
 
 // CompUnit → FuncDef+
 void CompUnit() {
@@ -395,26 +401,10 @@ bool Stmt() {
     // if
     if (checkTok("if")) {
         getTok();
-        if (!checkTok("(")) {
-            recordErrorLineOnce(peekTok());
-        }
-        else {
-            getTok();
-        }
-
-        Expr();
-
-        if (!checkTok(")")) {
-            recordErrorLineOnce(peekTok());
-        }
-        else {
-            getTok();
-        }
-
+        ParenExprForCtrl();
         if (!Stmt()) {
             return false;
         }
-
         if (checkTok("else")) {
             getTok();
             if (!Stmt()) return false;
@@ -425,22 +415,7 @@ bool Stmt() {
     // while
     if (checkTok("while")) {
         getTok();
-        if (!checkTok("(")) {
-            recordErrorLineOnce(peekTok());
-        }
-        else {
-            getTok();
-        }
-
-        Expr();
-
-        if (!checkTok(")")) {
-            recordErrorLineOnce(peekTok());
-        }
-        else {
-            getTok();
-        }
-
+        ParenExprForCtrl();
         if (!Stmt()) return false;
         return true;
     }
@@ -667,6 +642,47 @@ void PrimaryExpr() {
         recordErrorLineOnce(peekTok());
         syncTo(FOLLOW_Expr);
         return;
+    }
+}
+
+// if/while 括号条件：局部同步，避免级联错误
+bool ParenExprForCtrl() {
+    // 左括号：缺少只记录
+    if (!checkTok("(")) {
+        recordErrorLineOnce(peekTok());
+    }
+    else {
+        getTok();
+    }
+
+    // 记录错误数快照
+    size_t before = error_lines.size();
+
+    // 条件表达式
+    Expr();
+
+    bool exprHasNewError = (error_lines.size() > before);
+
+    // 受控同步集合：停在 ')' 或语句/块级安全起点
+    const unordered_set<string> ctrlSync = { ")", "{", ";", "else", "}", "EOF" };
+
+    if (exprHasNewError) {
+        // 条件内部已报错：做一次局部同步，并尽量吃掉 ')'
+        syncTo(ctrlSync);
+        if (checkTok(")")) getTok();
+        return true;
+    }
+
+    // 条件无错：检查右括号，不足则记录并同步
+    if (!checkTok(")")) {
+        recordErrorLineOnce(peekTok());
+        syncTo(ctrlSync);
+        if (checkTok(")")) getTok();
+        return true;
+    }
+    else {
+        getTok();
+        return true;
     }
 }
 
