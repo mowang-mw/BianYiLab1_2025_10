@@ -390,31 +390,25 @@ bool Stmt() {
     // “int” ID “=” Expr “;”(第二十个案例有“int x_pow = 2, y_pow = 11;”这样的形式，此处加上)
     if (checkTok("int")) {
         getTok();
-        while (!checkTok(";")) {
-            if (!checkTok("Ident")) {
-                recordErrorLineOnce(peekTok());
-            }
-            else {
-                getTok();
-            }
-            if (!checkTok("=")) {
-                recordErrorLineOnce(peekTok());
-            }
-            else {
-                getTok();
-            }
-            Expr();
-            if (!checkTok(",")) {
-                if (checkTok(";")) {
-                    break;
-                }
-                recordErrorLineOnce(peekTok());
-            }
-            else {
-                getTok();
-            }
+    Tag_1:
+        if (!checkTok("Ident")) {
+            recordErrorLineOnce(peekTok());
         }
+        else {
+            getTok();
+        }
+        if (!checkTok("=")) {
+            recordErrorLineOnce(peekTok());
+        }
+        else {
+            getTok();
+        }
+        Expr();
         if (!checkTok(";")) {
+            if (checkTok(",")) {
+                getTok();
+                goto Tag_1;
+            }
             recordErrorLineOnce(peekTok());
         }
         else {
