@@ -25,42 +25,56 @@ struct Token {
 };
 vector<Token> tokens;
 
+
 char Getchar() {
     int temp_char;
+
     if ((temp_char = getchar()) == EOF) {
         return EOF;
     }
+
     if (temp_char == '\n') line_no++;
 
+    // 跳过空白
     if ((Whitespace.find(temp_char) != std::string::npos)) {
         return Getchar();
     }
+    // 处理注释
     else if (temp_char == '/') {
         int next_char = getchar();
+
+        // 单行注释 //
         if (next_char == '/') {
+            // 吃到换行为止。只有真的遇到 '\n' 才计数
             while ((temp_char = getchar()) != EOF && temp_char != '\n');
-            line_no++;
+            if (temp_char == '\n') line_no++;
             return Getchar();
         }
+        // 多行注释 /* ... */
         else if (next_char == '*') {
             while (true) {
                 temp_char = getchar();
-                if (temp_char == '\n') line_no++;
                 if (temp_char == EOF) return EOF;
+                if (temp_char == '\n') {
+                    line_no++;
+                    continue;
+                }
                 if (temp_char == '*') {
-                    next_char = getchar();
-                    if (next_char == '\n') line_no++;
-                    if (next_char == '/') break;
-                    else ungetc(next_char, stdin);
+                    int c2 = getchar();
+                    if (c2 == EOF) return EOF;
+                    if (c2 == '/') break;      // 注释结束
+                    ungetc(c2, stdin);         // 不是 /，退回去，交给下一轮处理
                 }
             }
             return Getchar();
         }
+        // 不是注释，退回 next_char，把 '/' 当作普通字符返回
         else {
             ungetc(next_char, stdin);
             return '/';
         }
     }
+
     return static_cast<char>(temp_char);
 }
 
